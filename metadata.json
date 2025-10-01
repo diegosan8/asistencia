@@ -1,0 +1,5 @@
+{
+  "name": "Generador de Plantillas de Asistencia",
+  "description": "Una aplicación para crear plantillas de control de asistencia para equipos deportivos, exportables a Excel. Ingrese los datos de su equipo, seleccione los días de entrenamiento y genere un libro de Excel completo con hojas mensuales y un resumen anual.",
+  "requestFramePermissions": []
+}
