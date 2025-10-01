@@ -110,10 +110,9 @@ export const generateAttendanceWorkbook = ({ teamName, year, players, selectedDa
             const attendanceFormula = practiceDates.length > 0
                 ? `IF(LEN(A${rowNum})>0, IFERROR(COUNTIF(${firstDateCol}${rowNum}:${lastDateCol}${rowNum}, TRUE) / COUNTA(${firstDateCol}$1:${lastDateCol}$1), ""), "")`
                 : "";
-
-            const checkboxCells = practiceDates.map(() => ({
-                f: `IF(LEN($A${rowNum})>0, FALSE, "")`
-            }));
+            
+            // Use null for empty, editable cells. A formula would block user interaction.
+            const checkboxCells = practiceDates.map(() => null);
 
             const rowData = [{ f: nameFormula }, ...checkboxCells, { f: attendanceFormula, t: 'n', z: '0.00%' }];
             aoa.push(rowData);
@@ -133,7 +132,12 @@ export const generateAttendanceWorkbook = ({ teamName, year, players, selectedDa
             ws[XLSX.utils.encode_cell({r: playerRow, c: 0})].s = nameStyle; // Name style
             practiceDates.forEach((__, c) => {
                 const cell = ws[XLSX.utils.encode_cell({r: playerRow, c: c + 1})];
-                if(cell) cell.s = absentStyle; // Empty cells
+                // Check if cell exists before styling to avoid errors on totally empty rows
+                if(cell) {
+                    cell.s = absentStyle;
+                } else { // If cell is null, create it to apply style
+                    XLSX.utils.sheet_add_aoa(ws, [[{v: '', s: absentStyle}]], { origin: {r: playerRow, c: c + 1} });
+                }
             });
             ws[XLSX.utils.encode_cell({r: playerRow, c: headers.length - 1})].s = percentageStyle; // Percentage cell
         }
